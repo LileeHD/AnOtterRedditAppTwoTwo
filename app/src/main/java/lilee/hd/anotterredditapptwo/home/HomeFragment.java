@@ -7,14 +7,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,7 +32,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import lilee.hd.anotterredditapptwo.R;
 import lilee.hd.anotterredditapptwo.adapter.PostViewAdapter;
-import lilee.hd.anotterredditapptwo.detail.DetailFragment;
 import lilee.hd.anotterredditapptwo.model.Children;
 import lilee.hd.anotterredditapptwo.model.Post;
 import lilee.hd.anotterredditapptwo.viewmodel.PostViewModel;
@@ -46,11 +42,8 @@ import lilee.hd.anotterredditapptwo.viewmodel.SubredditViewModelFactory;
 import static android.content.Context.CONNECTIVITY_SERVICE;
 
 public class HomeFragment extends Fragment implements PostViewAdapter.PostClickListener {
-    private static final String TAG = "HomeFragment";
-    @BindView(R.id.logo)
-    ImageView logo;
-    @BindView(R.id.ic_back)
-    ImageButton refreshBtn;
+    public static final String TAG = "HomeFragment";
+
     @BindView(R.id.home_list_view)
     RecyclerView postView;
     @BindView(R.id.swipe_layout)
@@ -59,8 +52,7 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
     TextView connectionInfo;
     @BindView(R.id.progressbar)
     ProgressBar progressBar;
-    @BindView(R.id.search_frag)
-    Button sendUsertoSearch;
+    String mQuery = "";
     private PostViewAdapter adapter;
     private LiveData<Post> currentpost;
     private ArrayList<Children> postsList = new ArrayList<>();
@@ -70,67 +62,70 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
     private boolean mIsRefreshing = false;
     private String sort = "new";
     private ArrayList<String> mNames = new ArrayList<>();
-    String mQuery ="";
 
+    private HomeFragment homeFragment;
+    private DetailFragment detailFragment;
 
     public HomeFragment() {
     }
-    public static HomeFragment newInstance() {
-        return new HomeFragment();
-    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ButterKnife.bind(this, view);
-        initUserViewModel();
         checkConnection();
         refreshingUI();
-        Log.d(TAG, "onCreateView: PHARAH");
         return view;
     }
 
-    private String getImplode(List<String> names){
-        mNames= (ArrayList<String>) names;
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState == null && isAdded()){
+            mPostViewModel = ViewModelProviders.of(getActivity()).get(PostViewModel.class);
+        }
+    }
+
+    private void initViewModel() {
+        mPostViewModel = ViewModelProviders.of(this).get(PostViewModel.class);
+        mPostViewModel.initHome();
+        mPostViewModel.getDefaultFeed().observe(this, feed -> {
+            List<Children> childrenList = feed.getData().getChildren();
+            postsList.addAll(childrenList);
+            adapter.notifyDataSetChanged();
+        });
+    }
+
+    private String getImplode(List<String> names) {
+        mNames = (ArrayList<String>) names;
         mQuery = TextUtils.join("+", mNames);
-        Log.d(TAG, "getImplode: " + mQuery);
         return mQuery;
     }
 
-//    private void initViewModel() {
-//        mPostViewModel = ViewModelProviders.of(this).get(PostViewModel.class);
-//        mPostViewModel.initHome();
-//        mPostViewModel.getFeedRepository().observe(this, feed -> {
-//            List<Children> childrenList = feed.getData().getChildren();
-//            postsList.addAll(childrenList);
-//            adapter.notifyDataSetChanged();
-//            Log.d(TAG, "initViewModel: "+ postsList.size());
-//        });
-//    }
-
-    private void initUserViewModel() {
+    private String initStringData() {
         SubredditRepository repository = SubredditRepository.setInstance(getContext());
         SubredditViewModelFactory factory = new SubredditViewModelFactory(repository);
         viewModel = ViewModelProviders.of(getActivity(), factory).get(SubredditViewModel.class);
         viewModel.getnames().observe(getActivity(), strings -> {
             mQuery = getImplode(strings);
-            Log.d(TAG, "onViewCreated: " + mQuery);
         });
+        Log.d(TAG, "initStringData: " + "\n" + "-----------" + mQuery);
+        return mQuery;
     }
 
     private void initPostView() {
         if (adapter == null) {
             DividerItemDecoration dividerItemDecoration =
                     new DividerItemDecoration(Objects.requireNonNull(getContext()),
-                    DividerItemDecoration.VERTICAL);
+                            DividerItemDecoration.VERTICAL);
             adapter = new PostViewAdapter(getContext(), postsList, this);
             postView.addItemDecoration(dividerItemDecoration);
             postView.setItemAnimator(new DefaultItemAnimator());
             postView.setAdapter(adapter);
             postView.setLayoutManager(new LinearLayoutManager(getContext()));
             postView.setHasFixedSize(true);
-            Log.d(TAG, "initPostView: ");
         }
     }
 
@@ -143,11 +138,18 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
         Log.d(TAG, "onPostClick: " + post.getData().getTitle());
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+    }
+
     private void swapFragment() {
-        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, DetailFragment.newInstance())
-                .addToBackStack("detail")
-                .commit();
+        if (isAdded()){
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, DetailFragment.newInstance())
+                    .addToBackStack("home")
+                    .commit();
+        }
     }
 
     @Override
@@ -158,43 +160,32 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
     //  Navigation
     private void refreshingUI() {
         mSwipeRefreshLayout.setOnRefreshListener(() -> {
-            postsList.clear();
-
-            initPostView();
-            mSwipeRefreshLayout.setRefreshing(false);
-        });
-        refreshBtn.setOnClickListener(v -> {
-            postsList.clear();
-            postView.scrollToPosition(1);
-
-            initPostView();
+//            postsList.clear();
+//            initViewModel();
+//            initPostView();
             mSwipeRefreshLayout.setRefreshing(false);
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                mSwipeRefreshLayout.setRefreshing(true);
-
-                initPostView();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     private void checkConnection() {
         ConnectivityManager manager = (ConnectivityManager) getActivity().getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager != null ? manager.getActiveNetworkInfo() : null;
         if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+            refreshingUI();
+            if (mQuery.isEmpty()){
+                initViewModel();
+            }else {
+                initStringData();
+            }
 
             initPostView();
         } else {
             connectionInfo.setVisibility(View.VISIBLE);
             connectionInfo.setText(getText(R.string.no_connected));
-            mSwipeRefreshLayout.setVisibility(View.GONE);
+            Toast.makeText(getContext(), "No connection", Toast.LENGTH_SHORT).show();
         }
     }
+
 
 }

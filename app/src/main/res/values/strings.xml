@@ -49,5 +49,7 @@
     <string name="subreddit_doesnt_exist">The subreddit doesn\'t exist</string>
     <string name="nsfw_subreddit">NSFW subreddits are not allowed</string>
     <string name="custom_your_feed">Custom your feed</string>
+    <string name="send_to_widget">Tape to send to widget</string>
+    <string name="postimage">PostImage</string>
 
 </resources>

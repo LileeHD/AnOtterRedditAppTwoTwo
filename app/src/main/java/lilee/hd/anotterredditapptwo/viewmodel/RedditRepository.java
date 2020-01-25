@@ -1,5 +1,6 @@
 package lilee.hd.anotterredditapptwo.viewmodel;
 
+import android.app.ActivityManager;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -22,7 +23,7 @@ public class RedditRepository {
         redditAPI = RedditService.createService(RedditAPI.class);
     }
 
-    public static RedditRepository getInstance() {
+    public synchronized static RedditRepository getInstance() {
         if (sInstance == null) {
             sInstance = new RedditRepository();
         }
@@ -35,12 +36,14 @@ public class RedditRepository {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
                 if (response.isSuccessful()) {
-                    feedMutableLiveData.setValue(response.body());
+                    feedMutableLiveData.postValue(response.body());
                 }
+
             }
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
-                feedMutableLiveData.setValue(null);
+                feedMutableLiveData.postValue(null);
+                t.printStackTrace();
             }
         });
         return feedMutableLiveData;
@@ -62,6 +65,7 @@ public class RedditRepository {
             public void onFailure(Call<Feed> call, Throwable t) {
                 feedMutableLiveData.setValue(null);
                 Log.d(TAG, "onFailure: "+ t);
+                t.printStackTrace();
             }
         });
         return feedMutableLiveData;

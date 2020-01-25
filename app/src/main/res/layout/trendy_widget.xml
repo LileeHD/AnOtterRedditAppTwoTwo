@@ -1,27 +1,28 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#fff"
+    android:layout_height="wrap_content"
+    android:background="@color/grey"
+    android:orientation="horizontal"
+    android:id="@+id/widget_container"
     android:padding="@dimen/widget_margin">
 
     <TextView
         android:id="@+id/trendy_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:layout_margin="8dp"
+        android:minLines="3"
         android:contentDescription="@string/trendy_title"
         android:text="@string/trendy_title"
         android:textSize="16sp"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold|italic"
+        />
     <ImageView
         android:layout_width="80dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:layout_height="80dp"
         android:id="@+id/trendy_img"
         android:src="@drawable/leaf"
-        android:layout_toStartOf="@id/trendy_title"/>
+        android:contentDescription="@string/postimage" />
 
-</RelativeLayout>
+</LinearLayout>

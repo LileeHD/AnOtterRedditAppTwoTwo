@@ -11,6 +11,7 @@ import androidx.room.Update;
 
 import java.util.List;
 
+import lilee.hd.anotterredditapptwo.model.CustomQuery;
 import lilee.hd.anotterredditapptwo.model.Subreddit;
 
 @Dao

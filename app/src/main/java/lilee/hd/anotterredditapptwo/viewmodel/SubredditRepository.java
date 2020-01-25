@@ -13,8 +13,11 @@ import java.util.concurrent.Executors;
 import lilee.hd.anotterredditapptwo.database.SubredditDB;
 import lilee.hd.anotterredditapptwo.database.SubredditDao;
 import lilee.hd.anotterredditapptwo.home.FeedCallback;
+import lilee.hd.anotterredditapptwo.model.CustomQuery;
 import lilee.hd.anotterredditapptwo.model.Feed;
 import lilee.hd.anotterredditapptwo.model.Subreddit;
+import lilee.hd.anotterredditapptwo.reddit.RedditAPI;
+import lilee.hd.anotterredditapptwo.reddit.RedditService;
 import lilee.hd.anotterredditapptwo.search.SubredditNetworking;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,6 +33,7 @@ public class SubredditRepository {
     private LiveData<List<Subreddit>> subredditsFromDb;
     private LiveData<List<String>> namesFromDb;
     private List<String>iDontKnow;
+    private RedditAPI redditAPI;
 
     private SubredditRepository(SubredditDB database, Executor executor, SubredditNetworking networking) {
         mSubredditDao = database.subredditDao();
@@ -37,6 +41,7 @@ public class SubredditRepository {
         this.mNetworking = networking;
         subredditsFromDb = mSubredditDao.getAll();
         namesFromDb= mSubredditDao.getAllNames();
+        redditAPI = RedditService.createService(RedditAPI.class);
     }
 
     public static SubredditRepository getInstance(SubredditDB database, Executor executor,
@@ -61,9 +66,15 @@ public class SubredditRepository {
 
     public void insertSubreddit(Subreddit subreddit) {
         mExecutor.execute(() -> mSubredditDao.save(subreddit));
-        Log.d(TAG, "DAO: " + subreddit.getName());
+
     }
 
+//    public void saveQuery(CustomQuery query){
+//        mExecutor.execute(() -> mSubredditDao.saveQuery(query));
+//    }
+//    public void updateQuery(CustomQuery query){
+//        mExecutor.execute(() -> mSubredditDao.updateQuery(query));
+//    }
 
 // -------------- from database------------
 
@@ -101,4 +112,24 @@ public class SubredditRepository {
          return feedMutableLiveData;
 }
 
+    public MutableLiveData<Feed> getUserFeed(String name) {
+        MutableLiveData<Feed> feedMutableLiveData = new MutableLiveData<>();
+        redditAPI.getMyFeed(name).enqueue(new Callback<Feed>() {
+            @Override
+            public void onResponse(Call<Feed> call, Response<Feed> response) {
+                if (response.isSuccessful()) {
+                    feedMutableLiveData.setValue(response.body());
+                    Log.d("DAO OTTER", "onResponse: " + response.code());
+
+                    Log.d(TAG, "onResponse: " + feedMutableLiveData.getValue());
+                }
+            }
+            @Override
+            public void onFailure(Call<Feed> call, Throwable t) {
+                feedMutableLiveData.setValue(null);
+                Log.d(TAG, "onFailure: "+ t);
+            }
+        });
+        return feedMutableLiveData;
+    }
 }

@@ -1,65 +1,80 @@
 package lilee.hd.anotterredditapptwo.home;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import lilee.hd.anotterredditapptwo.R;
 
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
+    public static final String QUERY_EXTRA = "query";
+    @BindView(R.id.searchBtn)
+    Button searchBtn;
     private Context mContext = HomeActivity.this;
-    private BottomNavigationView navView;
+    private HomeFragment currentHomeFragment;
+    private DetailFragment detailFragment;
+    private String query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        bottomNavSetup();
-        checkConnection(savedInstanceState);
+        ButterKnife.bind(this);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new DetailFragment(), "detail")
+                .replace(R.id.fragment_container, new HomeFragment(), "home")
+                .commit();
+        setSearchButton();
+
     }
 
-    private void bottomNavSetup() {
-        navView = findViewById(R.id.bottom_nav_bar);
-        BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
-            Fragment selectedFragment = new SearchFragment();
-            switch (item.getItemId()) {
-                case R.id.ic_home:
-                    selectedFragment = new HomeFragment();
-                    break;
-                case R.id.ic_search:
-                    selectedFragment = new SearchFragment();
-                    break;
-                case R.id.ic_otter:
-                    selectedFragment = new OtterFragment();
-                    break;
-            }
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, selectedFragment).commit();
-            return true;
-        };
-        navView.setOnNavigationItemSelectedListener(navListener);
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        currentHomeFragment = (HomeFragment) getSupportFragmentManager()
+                .getFragment(outState, HomeFragment.TAG);
     }
-    private void checkConnection(Bundle savedInstanceState){
-        ConnectivityManager manager = (ConnectivityManager) this.getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = manager != null ? manager.getActiveNetworkInfo() : null;
-        if (networkInfo != null && networkInfo.isConnectedOrConnecting()){
-            if (savedInstanceState == null && getIntent().getData() != null) {
-                navView.setSelectedItemId(R.id.ic_search);
-            } else {
-                navView.setSelectedItemId(R.id.ic_home);
-            }
-        }else{
-            Toast.makeText(mContext, "No connection", Toast.LENGTH_SHORT).show();
+
+    private void setSearchButton() {
+        searchBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void switchFrag(){
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, new HomeFragment(), "home")
+                .addToBackStack("home")
+                .commit();
+        setSearchButton();
+    }
+
+    private void instantiateFragments(Bundle inState) {
+        FragmentManager manager = getFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        if (inState != null) {
+//            currentHomeFragment = (HomeFragment) manager.put;
+        } else {
+            currentHomeFragment = new HomeFragment();
+//            transaction.add(R.id.fragment_container, homeFragment, HomeFragment.TAG);
+            transaction.commit();
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }

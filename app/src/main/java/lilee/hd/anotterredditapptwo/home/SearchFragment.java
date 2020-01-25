@@ -1,5 +1,6 @@
 package lilee.hd.anotterredditapptwo.home;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -8,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +29,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import lilee.hd.anotterredditapptwo.R;
 import lilee.hd.anotterredditapptwo.adapter.SubredditViewAdapter;
-import lilee.hd.anotterredditapptwo.detail.DetailFragment;
 import lilee.hd.anotterredditapptwo.model.Subreddit;
 import lilee.hd.anotterredditapptwo.reddit.RedditAPI;
 import lilee.hd.anotterredditapptwo.util.SendSubredditData;
@@ -52,16 +51,18 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
     SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.sub_connection_info)
     TextView connectionInfo;
+    SendSubredditData callback;
+    String mQuery = "";
     private SubredditViewAdapter adapter;
     private SubredditViewModel viewModel;
     private Subreddit currentSubreddit;
     private ArrayList<Subreddit> subList = new ArrayList<>();
     private ArrayList<String> mNames = new ArrayList<>();
     private RedditAPI redditAPI;
-    SendSubredditData callback;
-    String mQuery ="";
+
     public SearchFragment() {
     }
+
     public static SearchFragment newInstance() {
         return new SearchFragment();
     }
@@ -79,21 +80,33 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
     }
 
     private void initOtherViews() {
-        mEditText.setOnClickListener(v ->{
+        mEditText.setOnClickListener(v -> {
             initSearch();
         });
         saveBtn.setOnClickListener(v -> initSearch());
         createFeed.setOnClickListener(v -> {
-
+            Intent intent = new Intent(getActivity(), HomeActivity.class);
+            intent.putExtra(HomeActivity.QUERY_EXTRA, mQuery);
+            getActivity().startActivity(intent);
+            Log.d(TAG, "initOtherViews: " + mQuery);
         });
     }
-
+    private String getImplode(List<String> names) {
+        mNames = (ArrayList<String>) names;
+        mQuery = TextUtils.join("+", mNames);
+        Log.d(TAG, "getImplode: "+ mNames.size() + mQuery);
+        return mQuery;
+    }
     private void initViewModel() {
         SubredditRepository repository = SubredditRepository.setInstance(getContext());
         SubredditViewModelFactory factory = new SubredditViewModelFactory(repository);
         viewModel = ViewModelProviders.of(this, factory).get(SubredditViewModel.class);
         viewModel.getSubreddits().observe(this, this::updateList);
-        Log.d(TAG, "initViewModel: ");
+        viewModel.getnames().observe(getActivity(), strings -> {
+            mQuery = getImplode(strings);
+            Log.d(TAG, "initViewModel: " + mQuery);
+        });
+
     }
 
     private void initRecyclerView() {
@@ -107,7 +120,6 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
             recyclerView.setAdapter(adapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             recyclerView.setHasFixedSize(true);
-            Log.d(TAG, "initPostView: ");
         }
     }
 
@@ -119,7 +131,7 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
             initRecyclerView();
             mSwipeRefreshLayout.setRefreshing(false);
         });
-        Log.d(TAG, "updateList: " +subList.size());
+        Log.d(TAG, "updateList: " + subList.size());
     }
 
     private void initSearch() {
@@ -135,6 +147,7 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
         if (subList.size() != 0) {
             currentSubreddit = subList.get(position);
             viewModel.sendSubredditforNewFeed(currentSubreddit);
+            swapFragment();
         }
         Log.d(TAG, "onSubClick: " + "\n" + "item position: " +
                 position + "\n" + "List size: " + subList.size() +
@@ -153,8 +166,7 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
 
     private void swapFragment() {
         Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_in_left)
-                .replace(R.id.fragment_container, HomeFragment.newInstance())
+                .replace(R.id.fragment_container, new HomeFragment())
                 .addToBackStack("detail")
                 .commit();
     }

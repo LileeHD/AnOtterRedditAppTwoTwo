@@ -15,6 +15,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".home.SearchActivity"
+            android:parentActivityName=".home.HomeActivity">
+
+        </activity>
+
         <receiver android:name=".widget.TrendyWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -26,10 +31,7 @@
         </receiver>
 
         <activity android:name=".home.BaseActivity" />
-        <activity android:name=".home.SplashActivity"></activity>
-        <activity
-            android:name=".detail.DetailActivity"
-            android:parentActivityName=".home.HomeActivity" />
+        <activity android:name=".home.SplashActivity" />
         <activity android:name=".home.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

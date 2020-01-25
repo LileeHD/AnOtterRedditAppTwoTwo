@@ -37,6 +37,9 @@ public class Post {
     @SerializedName("url")
     @Expose
     private String imageUrl;
+    @SerializedName("thumbnail")
+    @Expose
+    private String thumbnailUrl;
     @SerializedName("num_comments")
     @Expose
     private int numComments;
@@ -46,8 +49,25 @@ public class Post {
     @SerializedName("is_video")
     private boolean isVideo = false;
 
+    private Boolean expanded;
+
 //    ----------------------------------------Getter Setter----------------------------------------
 
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public Boolean getExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(Boolean expanded) {
+        this.expanded = expanded;
+    }
 
     public Subreddit getSubredditObj() {
         return subredditObj;

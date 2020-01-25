@@ -14,6 +14,7 @@ import java.util.concurrent.Executor;
 
 import lilee.hd.anotterredditapptwo.database.SubredditDB;
 import lilee.hd.anotterredditapptwo.home.FeedCallback;
+import lilee.hd.anotterredditapptwo.model.CustomQuery;
 import lilee.hd.anotterredditapptwo.model.Feed;
 import lilee.hd.anotterredditapptwo.model.Post;
 import lilee.hd.anotterredditapptwo.model.Subreddit;
@@ -44,6 +45,7 @@ public class SubredditViewModel extends ViewModel {
         mNetworking = repository.getNetworking();
         mSubList = repository.getSubList();
         mImplode = repository.getNamesFromDb();
+        mutableLiveData = repository.getUserFeed(string);
     }
 
     //    ---------------------------Subreddit in database ---------------
@@ -52,6 +54,16 @@ public class SubredditViewModel extends ViewModel {
         mNetworking.fetchSubreddit(subredditName, new SubredditCallback(mRepository, userInput));
         Log.d(TAG, "DAO: insertSubreddit: " + subredditName);
     }
+
+//    public CustomQuery saveNewQuery(CustomQuery query){
+//        mRepository.saveQuery(query);
+//        return query;
+//    }
+//
+//    public CustomQuery updateQuery(CustomQuery query){
+//        mRepository.updateQuery(query);
+//        return query;
+//    }
 
     public LiveData<List<Subreddit>> getSubreddits() {
         return mSubList;
@@ -88,32 +100,34 @@ public class SubredditViewModel extends ViewModel {
 
 //    -------------------------- user feed
 
-    public void initCry() {
-        if (mutableLiveData != null) {
-            return;
-        }
-        Subreddit subreddit = currentSubreddit.getValue();
-        String query = null;
-        if (subreddit != null) {
-            query = subreddit.getName();
-            RedditRepository repository = RedditRepository.getInstance();
-            mutableLiveData = repository.getUserFeed(query);
 
-        }
-        Log.d(TAG, "initHome: " + query);
-    }
+
+
+//    public void initCry() {
+//        if (mutableLiveData != null) {
+//            return;
+//        }
+//        Subreddit subreddit = currentSubreddit.getValue();
+//        String query = null;
+//        if (subreddit != null) {
+//            query = subreddit.getName();
+//            RedditRepository repository = RedditRepository.getInstance();
+//            mutableLiveData = repository.getUserFeed(query);
+//
+//        }
+//        Log.d(TAG, "initHome: " + query);
+//    }
 
     public void initCryAgain(String query) {
+        string = query;
         if (mutableLiveData != null) {
             return;
         }
             RedditRepository repository = RedditRepository.getInstance();
             mutableLiveData = repository.getUserFeed(query);
-        Log.d(TAG, "initCryAgain: " + query);
     }
 
-    public MutableLiveData<Feed> needHelp(){
-//        Log.d(TAG, "needHelp: " + mNameList.getValue());
+    public MutableLiveData<Feed> getFeed(){
         return mutableLiveData;
     }
 
@@ -125,21 +139,8 @@ public class SubredditViewModel extends ViewModel {
         return currentPost;
     }
 
-//    default feed
-//public void saveSubreddit(EditText userInput) {
-//    String subredditName = userInput.getText().toString().trim();
-//    mNetworking.fetchSubreddit(subredditName, new SubredditCallback(mRepository, userInput));
-//    Log.d(TAG, "DAO: insertSubreddit: " + subredditName);
-//}
-//
-//    public LiveData<List<Subreddit>> getSubreddits() {
-//        return mSubList;
-//    }
     public void initHomeFeed() {
         mRepository.getNamesFromDb().getValue();
-    }
-    public MutableLiveData<Feed> getFeedRepository() {
-        return mutableLiveData;
     }
 
 }

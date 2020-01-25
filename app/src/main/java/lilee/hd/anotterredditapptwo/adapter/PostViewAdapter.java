@@ -1,24 +1,25 @@
 package lilee.hd.anotterredditapptwo.adapter;
 
 import android.content.Context;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.material.card.MaterialCardView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
 
@@ -27,23 +28,22 @@ import butterknife.ButterKnife;
 import lilee.hd.anotterredditapptwo.R;
 import lilee.hd.anotterredditapptwo.model.Children;
 import lilee.hd.anotterredditapptwo.util.GlideApp;
-import lilee.hd.anotterredditapptwo.util.IOnBackPressed;
-import lilee.hd.anotterredditapptwo.util.MyAppGlideModule;
 import lilee.hd.anotterredditapptwo.viewmodel.PostViewModel;
 
 public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostViewHolder> {
+//    https://gist.github.com/ZkHaider/9bf0e1d7b8a2736fd676
 
+    public static final int DEFAULT_ADAPTER = 1;
+    public static final int USER_ADAPTER = 2;
     private static final String TAG = "PostViewAdapter";
-
-    public static final int POST_ADAPTER= 1;
-
-    public static final int COMMENT_ADAPTER= 2;
-
     private Context mContext;
     private Children post;
     private ArrayList<Children> posts;
     private PostClickListener mListener;
     private PostViewModel postViewModel;
+    private int originalHeight = 0;
+    private boolean mIsViewExpanded = false;
+
 
     public PostViewAdapter(Context context, ArrayList<Children> posts, PostClickListener listener) {
         this.mContext = context;
@@ -62,6 +62,7 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostVi
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
+
         post = posts.get(position);
         holder.postTitle.setText(post.getData().getTitle());
         holder.rSubredditName.setText(post.getData().getSubredditR());
@@ -71,21 +72,18 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostVi
         } else {
             imageLoader(holder);
         }
-        if (post.getData().getBody().isEmpty()) {
-            holder.postBody.setVisibility(View.GONE);
-        } else {
-            holder.postBody.setText(post.getData().getBody());
-        }
     }
 
     private void imageLoader(PostViewHolder holder) {
         RequestOptions defaultOptions = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .error(null);
         GlideApp.with(mContext)
                 .setDefaultRequestOptions(defaultOptions)
                 .load(post.getData().getImageUrl())
                 .into(holder.postThumbnail);
     }
+
 
     @Override
     public int getItemCount() {
@@ -104,6 +102,8 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostVi
 
         @BindView(R.id.post_cardview)
         MaterialCardView cardView;
+        @BindView(R.id.post_bottom_bar)
+        LinearLayout bottomBar;
         //        top bar
         @BindView(R.id.post_subreddit)
         TextView rSubredditName;
@@ -112,14 +112,10 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostVi
         @BindView(R.id.date_updated)
         TextView dateUpdate;
         //        body
-        @BindView(R.id.post_thumbnail)
+        @BindView(R.id.post_image)
         ImageView postThumbnail;
-        @BindView(R.id.post_video)
-        PlayerView postVideo;
         @BindView(R.id.post_title_view)
         TextView postTitle;
-        @BindView(R.id.post_text)
-        TextView postBody;
         PostClickListener listener;
 
         PostViewHolder(@NonNull View itemView, PostClickListener listener) {
@@ -132,6 +128,7 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostVi
         @Override
         public void onClick(View v) {
             listener.onPostClick(postViewModel, getAdapterPosition());
+
         }
     }
 }

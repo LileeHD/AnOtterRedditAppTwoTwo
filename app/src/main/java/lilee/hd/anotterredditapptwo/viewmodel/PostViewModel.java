@@ -1,7 +1,11 @@
 package lilee.hd.anotterredditapptwo.viewmodel;
 
+import android.util.EventLog;
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 import lilee.hd.anotterredditapptwo.model.Feed;
@@ -11,6 +15,9 @@ public class PostViewModel extends ViewModel {
 
     private final MutableLiveData<Post> currentPost = new MutableLiveData<>();
     private MutableLiveData<Feed> mutableLiveData;
+    private StateLiveData<Feed>stateLiveData = new StateLiveData<Feed>();
+    private Observer<Throwable> errorObserver;
+    private Observer<EventLog>loadingObserver;
 
     public void initHome() {
         if (mutableLiveData != null) {
@@ -20,7 +27,15 @@ public class PostViewModel extends ViewModel {
         mutableLiveData = repository.getFeed();
     }
 
-    public MutableLiveData<Feed> getFeedRepository() {
+    public void initUserFeed(String query) {
+        if (mutableLiveData != null) {
+            return;
+        }
+        RedditRepository repository = RedditRepository.getInstance();
+        mutableLiveData = repository.getUserFeed(query);
+    }
+
+    public MutableLiveData<Feed> getDefaultFeed() {
         return mutableLiveData;
     }
 
@@ -31,5 +46,6 @@ public class PostViewModel extends ViewModel {
     public LiveData<Post> getCurrentPost() {
         return currentPost;
     }
+
 
 }

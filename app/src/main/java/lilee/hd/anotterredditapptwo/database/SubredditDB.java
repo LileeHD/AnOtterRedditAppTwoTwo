@@ -9,6 +9,7 @@ import androidx.room.RoomDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import lilee.hd.anotterredditapptwo.model.CustomQuery;
 import lilee.hd.anotterredditapptwo.model.Subreddit;
 
 @androidx.room.Database(entities = {Subreddit.class}, version = 1, exportSchema = false)
