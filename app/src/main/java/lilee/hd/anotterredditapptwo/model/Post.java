@@ -30,7 +30,6 @@ public class Post {
     @SerializedName("selftext")
     @Expose
     private String body;
-    // bottom bar
     @SerializedName("ups")
     @Expose
     private int ups;

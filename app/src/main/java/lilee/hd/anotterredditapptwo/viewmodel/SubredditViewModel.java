@@ -55,16 +55,6 @@ public class SubredditViewModel extends ViewModel {
         Log.d(TAG, "DAO: insertSubreddit: " + subredditName);
     }
 
-//    public CustomQuery saveNewQuery(CustomQuery query){
-//        mRepository.saveQuery(query);
-//        return query;
-//    }
-//
-//    public CustomQuery updateQuery(CustomQuery query){
-//        mRepository.updateQuery(query);
-//        return query;
-//    }
-
     public LiveData<List<Subreddit>> getSubreddits() {
         return mSubList;
     }
@@ -85,62 +75,6 @@ public class SubredditViewModel extends ViewModel {
 
     public LiveData<List<String>> getnames() {
         return mImplode;
-    }
-
-
-    public void sendUserNewFeed() {
-        mNetworking.getSubredditForFeed(string, new FeedCallback());
-        Log.d(TAG, "sendUserNewFeed: " + string);
-    }
-
-    public MutableLiveData<Feed> getUserFeed(String string) {
-        mNetworking.getSubredditForFeed(string, new FeedCallback());
-        return mutableLiveData;
-    }
-
-//    -------------------------- user feed
-
-
-
-
-//    public void initCry() {
-//        if (mutableLiveData != null) {
-//            return;
-//        }
-//        Subreddit subreddit = currentSubreddit.getValue();
-//        String query = null;
-//        if (subreddit != null) {
-//            query = subreddit.getName();
-//            RedditRepository repository = RedditRepository.getInstance();
-//            mutableLiveData = repository.getUserFeed(query);
-//
-//        }
-//        Log.d(TAG, "initHome: " + query);
-//    }
-
-    public void initCryAgain(String query) {
-        string = query;
-        if (mutableLiveData != null) {
-            return;
-        }
-            RedditRepository repository = RedditRepository.getInstance();
-            mutableLiveData = repository.getUserFeed(query);
-    }
-
-    public MutableLiveData<Feed> getFeed(){
-        return mutableLiveData;
-    }
-
-    public void sendData(Post post) {
-        this.currentPost.setValue(post);
-    }
-
-    public LiveData<Post> getCurrentPost() {
-        return currentPost;
-    }
-
-    public void initHomeFeed() {
-        mRepository.getNamesFromDb().getValue();
     }
 
 }

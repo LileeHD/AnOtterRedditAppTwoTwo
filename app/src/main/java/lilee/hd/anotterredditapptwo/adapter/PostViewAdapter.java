@@ -67,11 +67,11 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostVi
         holder.postTitle.setText(post.getData().getTitle());
         holder.rSubredditName.setText(post.getData().getSubredditR());
         holder.postAuthor.setText(post.getData().getAuthor());
-        if (post.getData().getImageUrl() == null) {
-            holder.postThumbnail.setVisibility(View.GONE);
-        } else {
-            imageLoader(holder);
-        }
+//        if (post.getData().getImageUrl() == null) {
+//            holder.postThumbnail.setVisibility(View.GONE);
+//        } else {
+//            imageLoader(holder);
+//        }
     }
 
     private void imageLoader(PostViewHolder holder) {

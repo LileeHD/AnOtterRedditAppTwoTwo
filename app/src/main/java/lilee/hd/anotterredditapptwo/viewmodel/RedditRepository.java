@@ -49,13 +49,13 @@ public class RedditRepository {
         return feedMutableLiveData;
     }
 
-    public MutableLiveData<Feed> getUserFeed(String name) {
+    public MutableLiveData<Feed> getUserFeed(String queryString) {
         MutableLiveData<Feed> feedMutableLiveData = new MutableLiveData<>();
-        redditAPI.getMyFeed(name).enqueue(new Callback<Feed>() {
+        redditAPI.getMyFeed(queryString).enqueue(new Callback<Feed>() {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
                 if (response.isSuccessful()) {
-                    feedMutableLiveData.setValue(response.body());
+                    feedMutableLiveData.postValue(response.body());
                     Log.d("DAO OTTER", "onResponse: " + response.code());
 
                     Log.d(TAG, "onResponse: " + feedMutableLiveData.getValue());
@@ -63,7 +63,7 @@ public class RedditRepository {
             }
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
-                feedMutableLiveData.setValue(null);
+                feedMutableLiveData.postValue(null);
                 Log.d(TAG, "onFailure: "+ t);
                 t.printStackTrace();
             }

@@ -1,6 +1,7 @@
 package lilee.hd.anotterredditapptwo.home;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,9 @@ import lilee.hd.anotterredditapptwo.adapter.PostViewAdapter;
 import lilee.hd.anotterredditapptwo.model.Post;
 import lilee.hd.anotterredditapptwo.util.GlideApp;
 import lilee.hd.anotterredditapptwo.viewmodel.PostViewModel;
+import lilee.hd.anotterredditapptwo.viewmodel.SubredditRepository;
+import lilee.hd.anotterredditapptwo.viewmodel.SubredditViewModel;
+import lilee.hd.anotterredditapptwo.viewmodel.SubredditViewModelFactory;
 
 public class DetailFragment extends Fragment {
     @BindView(R.id.post_subreddit_detail)
@@ -41,10 +45,11 @@ public class DetailFragment extends Fragment {
     @BindView(R.id.post_text_detail)
     TextView postBodyView;
 
+    private SubredditViewModel viewModel;
     private PostViewModel mPostViewModel;
     private PostViewAdapter adapter;
     private Post post;
-
+    private static final String TAG = "DetailFragment";
     public DetailFragment() {
     }
 
@@ -68,7 +73,10 @@ public class DetailFragment extends Fragment {
         if (isAdded()){
             mPostViewModel = ViewModelProviders.of(getActivity()).get(PostViewModel.class);
             mPostViewModel.getCurrentPost().observe(getActivity(),
-                    children -> bindViews());
+                    post -> {
+                        bindViews();
+                        Log.d(TAG, "onCreateView: "+ post.getSubredditR());
+                    });
         }
     }
 
@@ -80,24 +88,26 @@ public class DetailFragment extends Fragment {
             titleView.setText(post.getTitle());
             postBodyView.setText(post.getBody());
 
-            if (post.getImageUrl() == null) {
-                postImg.setVisibility(View.GONE);
-            } else {
-                RequestOptions defaultOptions = new RequestOptions()
-                        .error(null);
-                GlideApp.with(getContext())
-                        .setDefaultRequestOptions(defaultOptions)
-                        .asDrawable()
-                        .load(post.getImageUrl())
-                        .centerInside()
-                        .into(postImg);
-            }
+//            if (post.getImageUrl() == null) {
+//                postImg.setVisibility(View.GONE);
+//            } else {
+//                RequestOptions defaultOptions = new RequestOptions()
+//                        .error(null);
+//                GlideApp.with(requireActivity())
+//                        .setDefaultRequestOptions(defaultOptions)
+//                        .asDrawable()
+//                        .load(post.getImageUrl())
+//                        .centerInside()
+//                        .into(postImg);
+//            }
             if (post.getBody().isEmpty()) {
                 postBodyView.setVisibility(View.GONE);
             } else {
                 postBodyView.setText(post.getBody());
             }
+            Log.d(TAG, "bindViews: "+ post.getSubredditR());
         }
+
     }
 
 }
