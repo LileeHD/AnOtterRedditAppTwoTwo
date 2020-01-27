@@ -93,17 +93,19 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
             Log.d(TAG, "initOtherViews: " + mQuery);
         });
     }
+
     private String getImplode(List<String> names) {
         mNames = (ArrayList<String>) names;
         mQuery = TextUtils.join("+", mNames);
-        Log.d(TAG, "getImplode: "+ mNames.size() + mQuery);
+        Log.d(TAG, "getImplode: " + mNames.size() + mQuery);
         return mQuery;
     }
+
     private void initViewModel() {
         SubredditRepository repository = SubredditRepository.setInstance(getContext());
         SubredditViewModelFactory factory = new SubredditViewModelFactory(repository);
         viewModel = ViewModelProviders.of(this, factory).get(SubredditViewModel.class);
-        viewModel.getSubreddits().observe(this, this::updateList);
+        viewModel.getSubreddits().observe(getViewLifecycleOwner(), this::updateList);
         viewModel.getnames().observe(getActivity(), strings -> {
             mQuery = getImplode(strings);
             Log.d(TAG, "initViewModel: " + mQuery);
@@ -149,7 +151,6 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
         if (subList.size() != 0) {
             currentSubreddit = subList.get(position);
             viewModel.sendSubredditforNewFeed(currentSubreddit);
-            sendToWidget();
         }
         Log.d(TAG, "onSubClick: " + "\n" + "item position: " +
                 position + "\n" + "List size: " + subList.size() +
@@ -157,27 +158,39 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
         Log.d(TAG, "onSubClick: " + currentSubreddit.getName());
     }
 
-    private void sendToWidget() {
-        SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(currentSubreddit.getName(), "");
-        editor.putString(currentSubreddit.getIconUrl(), "");
-        editor.commit();
+    public void sendToWidget(Subreddit subreddit) {
+        Context context = getActivity();
+        currentSubreddit = subreddit;
+
+        if (context != null) {
+            SharedPreferences prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("name", currentSubreddit.getName());
+            editor.commit();
+            Log.d(TAG, "sendToWidget: " + subreddit.getName());
+        }
     }
+
+
+//    public void sendToWidget(int listSize) {
+//        if (subList != null){
+//            listSize = subList.size();
+//            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+//            SharedPreferences.Editor editor = prefs.edit();
+//            editor.putInt("size", listSize);
+//            editor.commit();
+//        }
+//
+//        Log.d(TAG, "sendToWidget: "+ listSize);
+//    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         SubredditRepository repository = SubredditRepository.setInstance(getContext());
         SubredditViewModelFactory factory = new SubredditViewModelFactory(repository);
-        viewModel = ViewModelProviders.of(getActivity(), factory).get(SubredditViewModel.class);
+        viewModel = ViewModelProviders.of(Objects.requireNonNull(getActivity()), factory).get(SubredditViewModel.class);
 
     }
 
-    private void swapFragment() {
-        Objects.requireNonNull(getActivity()).getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new HomeFragment())
-                .addToBackStack("detail")
-                .commit();
-    }
 }

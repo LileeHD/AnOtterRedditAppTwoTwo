@@ -72,14 +72,15 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
 
     public HomeFragment() {
     }
-
+    public static HomeFragment newInstance() {
+        return new HomeFragment();
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ButterKnife.bind(this, view);
-
         checkConnection();
         refreshingUI();
         return view;
@@ -90,7 +91,7 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
         mPostViewModel = ViewModelProviders.of(this).get(PostViewModel.class);
         mQuery= getImplode(mNames);
         mPostViewModel.initUserFeed(mQuery);
-        mPostViewModel.getUserFeed().observe(this, feed -> {
+        mPostViewModel.getUserFeed().observe(getViewLifecycleOwner(), feed -> {
             List<Children> childrenList = feed.getData().getChildren();
             postsList.addAll(childrenList);
             adapter.notifyDataSetChanged();
@@ -102,7 +103,7 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
     private void initDefaultVM(){
         mPostViewModel = ViewModelProviders.of(this).get(PostViewModel.class);
         mPostViewModel.initHome();
-        mPostViewModel.getDefaultFeed().observe(this, feed -> {
+        mPostViewModel.getDefaultFeed().observe(getViewLifecycleOwner(), feed -> {
             List<Children> childrenList = feed.getData().getChildren();
             postsList.addAll(childrenList);
             adapter.notifyDataSetChanged();
@@ -122,7 +123,7 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
         SubredditRepository repository = SubredditRepository.setInstance(getContext());
         SubredditViewModelFactory factory = new SubredditViewModelFactory(repository);
         viewModel = ViewModelProviders.of(this, factory).get(SubredditViewModel.class);
-        viewModel.getnames().observe(this, strings -> {
+        viewModel.getnames().observe(getViewLifecycleOwner(), strings -> {
             mQuery = getImplode(strings);
             if (mQuery.isEmpty()){
                 initDefaultVM();

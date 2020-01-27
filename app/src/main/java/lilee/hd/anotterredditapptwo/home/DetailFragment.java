@@ -16,6 +16,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,7 +32,7 @@ import lilee.hd.anotterredditapptwo.viewmodel.PostViewModel;
 import lilee.hd.anotterredditapptwo.viewmodel.SubredditViewModel;
 
 public class DetailFragment extends Fragment {
-    private static final String TAG = "DetailFragment";
+    public static final String TAG = "DetailFragment";
     @BindView(R.id.post_subreddit_detail)
     TextView subNameView;
     @BindView(R.id.post_author_detail)
@@ -61,9 +66,14 @@ public class DetailFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_post_detail, container, false);
         ButterKnife.bind(this, view);
+        setRetainInstance(true);
         bindViews();
         return view;
+    }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
     }
 
     private Post getPrefs(Post post) {

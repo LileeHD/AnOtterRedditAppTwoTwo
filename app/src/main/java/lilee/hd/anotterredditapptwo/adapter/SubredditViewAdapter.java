@@ -11,9 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 
 import java.util.ArrayList;
 
@@ -70,7 +68,7 @@ public class SubredditViewAdapter extends RecyclerView.Adapter<SubredditViewAdap
                 .placeholder(R.drawable.ic_otter)
                 .into(holder.subIcon);
     }
-    
+
     public void updateList(ArrayList<Subreddit> subreddits) {
         mSubreddits = subreddits;
         notifyDataSetChanged();
@@ -84,9 +82,11 @@ public class SubredditViewAdapter extends RecyclerView.Adapter<SubredditViewAdap
             return 0;
         }
     }
+
     public interface SubClickListener {
         void onSubClick(int position);
     }
+
     class SubredditViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.subreddit_name)
         TextView subredditName;
@@ -94,16 +94,18 @@ public class SubredditViewAdapter extends RecyclerView.Adapter<SubredditViewAdap
         ImageView subIcon;
         @BindView(R.id.close_icon)
         ImageButton removeBtn;
+        @BindView(R.id.sub_widget)
+        TextView subWidget;
         SubClickListener mListener;
 
-        SubredditViewHolder(@NonNull View itemView, SubClickListener listener){
+        SubredditViewHolder(@NonNull View itemView, SubClickListener listener) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             this.mListener = listener;
             itemView.setOnClickListener(this);
         }
 
-        private void initRemoveBtn(Subreddit subreddit){
+        private void initRemoveBtn(Subreddit subreddit) {
             removeBtn.setOnClickListener(v -> subViewModel.removeSubreddit(subreddit));
         }
 

@@ -51,5 +51,6 @@
     <string name="custom_your_feed">Custom your feed</string>
     <string name="send_to_widget">Tape to send to widget</string>
     <string name="postimage">PostImage</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
 </resources>
