@@ -34,26 +34,17 @@ public class SubredditNetworking {
         return sInstance;
     }
 
-    public LiveData<List<Subreddit>> getSubreddi() {
-        return subreddits;
-    }
-
-    void updateSubreddits(List<Subreddit> subreddits) {
-        this.subreddits.postValue(subreddits);
-    }
-
-
     public void fetchSubreddit(String subredditName, Callback<SubredditNode> callback) {
         redditAPI.getSubreddit(subredditName).enqueue(callback);
     }
-
-    public MutableLiveData<Feed> getSubredditForFeed(String query, Callback<Feed>callback){
-        redditAPI.getMyFeed(query).enqueue(callback);
-        Log.d(TAG, "initOtherViews: " + query);
-        return userFeed;
-    }
-    public void getHomeFeed(Callback<Feed>callback){
-        redditAPI.getHomeFeed().enqueue(callback);
-        Log.d(TAG, "initOtherViews: ");
-    }
+//
+//    public MutableLiveData<Feed> getSubredditForFeed(String query, Callback<Feed>callback){
+//        redditAPI.getMyFeed(query).enqueue(callback);
+//        Log.d(TAG, "initOtherViews: " + query);
+//        return userFeed;
+//    }
+//    public void getHomeFeed(Callback<Feed>callback){
+//        redditAPI.getHomeFeed().enqueue(callback);
+//        Log.d(TAG, "initOtherViews: ");
+//    }
 }

@@ -69,13 +69,6 @@ public class SubredditRepository {
 
     }
 
-//    public void saveQuery(CustomQuery query){
-//        mExecutor.execute(() -> mSubredditDao.saveQuery(query));
-//    }
-//    public void updateQuery(CustomQuery query){
-//        mExecutor.execute(() -> mSubredditDao.updateQuery(query));
-//    }
-
 // -------------- from database------------
 
     public LiveData<List<Subreddit>> getSubList() {
@@ -106,13 +99,8 @@ public class SubredditRepository {
     }
 
 //     feed
-    public MutableLiveData<Feed> getFeedTwo() {
-        MutableLiveData<Feed> feedMutableLiveData = new MutableLiveData<>();
-        mNetworking.getHomeFeed(new FeedCallback());
-         return feedMutableLiveData;
-}
 
-    public MutableLiveData<Feed> getUserFeed(String name) {
+    public MutableLiveData<Feed> getWidgetFeed(String name) {
         MutableLiveData<Feed> feedMutableLiveData = new MutableLiveData<>();
         redditAPI.getMyFeed(name).enqueue(new Callback<Feed>() {
             @Override
@@ -132,4 +120,6 @@ public class SubredditRepository {
         });
         return feedMutableLiveData;
     }
+
+
 }

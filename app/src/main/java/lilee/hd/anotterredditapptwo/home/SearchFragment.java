@@ -1,6 +1,8 @@
 package lilee.hd.anotterredditapptwo.home;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -147,12 +149,20 @@ public class SearchFragment extends Fragment implements SubredditViewAdapter.Sub
         if (subList.size() != 0) {
             currentSubreddit = subList.get(position);
             viewModel.sendSubredditforNewFeed(currentSubreddit);
-            swapFragment();
+            sendToWidget();
         }
         Log.d(TAG, "onSubClick: " + "\n" + "item position: " +
                 position + "\n" + "List size: " + subList.size() +
                 "\n" + "-----------");
         Log.d(TAG, "onSubClick: " + currentSubreddit.getName());
+    }
+
+    private void sendToWidget() {
+        SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(currentSubreddit.getName(), "");
+        editor.putString(currentSubreddit.getIconUrl(), "");
+        editor.commit();
     }
 
     @Override

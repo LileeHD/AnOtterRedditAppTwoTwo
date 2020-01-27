@@ -14,7 +14,7 @@
         android:layout_margin="8dp"
         android:minLines="3"
         android:contentDescription="@string/trendy_title"
-        android:text="@string/trendy_title"
+        android:hint="@string/app_name"
         android:textSize="16sp"
         android:textStyle="bold|italic"
         />

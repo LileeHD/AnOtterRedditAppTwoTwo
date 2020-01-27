@@ -1,8 +1,6 @@
 package lilee.hd.anotterredditapptwo.adapter;
 
 import android.content.Context;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.material.card.MaterialCardView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
 
@@ -27,6 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import lilee.hd.anotterredditapptwo.R;
 import lilee.hd.anotterredditapptwo.model.Children;
+import lilee.hd.anotterredditapptwo.model.Post;
 import lilee.hd.anotterredditapptwo.util.GlideApp;
 import lilee.hd.anotterredditapptwo.viewmodel.PostViewModel;
 
@@ -37,10 +32,11 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostVi
     public static final int USER_ADAPTER = 2;
     private static final String TAG = "PostViewAdapter";
     private Context mContext;
-    private Children post;
+    private Children child;
     private ArrayList<Children> posts;
     private PostClickListener mListener;
     private PostViewModel postViewModel;
+    private Post post;
     private int originalHeight = 0;
     private boolean mIsViewExpanded = false;
 
@@ -63,25 +59,31 @@ public class PostViewAdapter extends RecyclerView.Adapter<PostViewAdapter.PostVi
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
 
-        post = posts.get(position);
-        holder.postTitle.setText(post.getData().getTitle());
-        holder.rSubredditName.setText(post.getData().getSubredditR());
-        holder.postAuthor.setText(post.getData().getAuthor());
-//        if (post.getData().getImageUrl() == null) {
-//            holder.postThumbnail.setVisibility(View.GONE);
-//        } else {
-//            imageLoader(holder);
-//        }
+        child = posts.get(position);
+        post = child.getData();
+        holder.postTitle.setText(post.getTitle());
+        holder.rSubredditName.setText(post.getSubredditR());
+        holder.postAuthor.setText(post.getAuthor());
+        if (post.getImageUrl() == null || post.getImageUrl().equals("self")||post.getImageUrl().equals("default")) {
+            holder.postThumbnail.setImageResource(R.drawable.theotter);
+        } else {
+            imageLoader(holder);
+        }
     }
 
     private void imageLoader(PostViewHolder holder) {
         RequestOptions defaultOptions = new RequestOptions()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .error(null);
-        GlideApp.with(mContext)
-                .setDefaultRequestOptions(defaultOptions)
-                .load(post.getData().getImageUrl())
-                .into(holder.postThumbnail);
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .error(R.drawable.theotter);
+        try{
+            GlideApp.with(mContext)
+                    .applyDefaultRequestOptions(defaultOptions)
+                    .load(post.getImageUrl())
+                    .into(holder.postThumbnail);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 

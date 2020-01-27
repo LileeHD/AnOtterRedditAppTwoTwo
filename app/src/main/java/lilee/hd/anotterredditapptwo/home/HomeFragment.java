@@ -1,6 +1,7 @@
 package lilee.hd.anotterredditapptwo.home;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -59,6 +60,7 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
     private ArrayList<Children> postsList = new ArrayList<>();
     private PostViewModel mPostViewModel;
     private SubredditViewModel viewModel;
+    private Post mPost;
     private String mSearchResult;
     private boolean mIsRefreshing = false;
     private String sort = "new";
@@ -82,16 +84,6 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
         refreshingUI();
         return view;
 
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState == null && isAdded()){
-            mPostViewModel = ViewModelProviders.of(getActivity()).get(PostViewModel.class);
-            Log.d(TAG, "onActivityCreated: DetailFragment: "+ postsList.size());
-
-        }
     }
 
     private void initViewModel() {
@@ -158,12 +150,30 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
     // Click
     @Override
     public void onPostClick(PostViewModel model, int position) {
-        Children post = postsList.get(position);
-        mPostViewModel.sendData(post.getData());
+        Children child = postsList.get(position);
+        mPost = child.getData();
+//        mPostViewModel.sendData(mPost);
+        sendToWidget(mPost);
         swapFragment();
-        Log.d(TAG, "onPostClick: DetailFragment: " + post.getData().getThumbnailUrl());
+        Log.d(TAG, "onPostClick:" + mPost.getImageUrl());
     }
 
+    private void sendToWidget(Post post) {
+        Context context = getActivity();
+        mPost = post;
+        SharedPreferences prefs;
+        if (context != null) {
+            prefs = context.getSharedPreferences("PREF", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("subreddit",mPost.getSubredditR());
+            editor.putString("author", mPost.getAuthor());
+            editor.putString("image", mPost.getImageUrl());
+            editor.putString( "title", mPost.getTitle());
+            editor.putString( "body", mPost.getBody());
+            editor.commit();
+        }
+        Log.d(TAG, "sendToWidget: "+ post.getTitle());
+    }
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
@@ -195,7 +205,6 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
         });
     }
 
-
     private void checkConnection() {
         ConnectivityManager manager = (ConnectivityManager) getActivity().getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager != null ? manager.getActiveNetworkInfo() : null;
@@ -210,6 +219,5 @@ public class HomeFragment extends Fragment implements PostViewAdapter.PostClickL
             Toast.makeText(getContext(), "No connection", Toast.LENGTH_SHORT).show();
         }
     }
-
 
 }

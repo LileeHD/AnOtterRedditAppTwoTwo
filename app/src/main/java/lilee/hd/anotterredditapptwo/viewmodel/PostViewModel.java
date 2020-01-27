@@ -44,5 +44,16 @@ public class PostViewModel extends ViewModel {
         return currentPost;
     }
 
+    public void initWidgetFeed(String query) {
+        if (mutableLiveData != null) {
+            return;
+        }
+        RedditRepository repository = RedditRepository.getInstance();
+        mutableLiveData = repository.getWidgetFeed();
+    }
+
+    public MutableLiveData<Feed> getWidgetFeed() {
+        return mutableLiveData;
+    }
 
 }

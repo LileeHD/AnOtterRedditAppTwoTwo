@@ -25,9 +25,9 @@ public interface RedditAPI {
     @GET("r/{subreddit}/about.json?&sort=new&raw_json=1&type=sr")
     Call<SubredditNode> getSubreddit(@Path("subreddit") String subreddit);
 
-    @GET("r/{subreddit_name}/new.json")
-    Call<Feed> getMyFeed(@Path("subreddit_name") String subredditList);
+    @GET("r/{subreddit_names}/new.json")
+    Call<Feed> getMyFeed(@Path("subreddit_names") String subredditList);
 
-    @GET("r/{subreddit_name}/new.json&raw_json=1&limit=1")
-    Call<Feed> getWidgetPost(@Path("subreddit_name") String subredditList);
+    @GET("r/otters/new.json&raw_json=1&limit=1")
+    Call<Feed> getWidgetPost();
 }

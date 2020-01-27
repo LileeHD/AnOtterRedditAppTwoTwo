@@ -10,9 +10,7 @@ public class Post {
     //    Media
     private Media media;
     private String id;
-    @Ignore
-    private Subreddit subredditObj;
-    //top bar
+
     @SerializedName("subreddit_name_prefixed")
     @Expose
     private String subredditR;
@@ -20,44 +18,35 @@ public class Post {
     @Expose
     private String author;
 
-    @SerializedName("created")
-    @Expose
-    private long date;
-    //    body
     @SerializedName("title")
     @Expose
     private String title;
+
     @SerializedName("selftext")
     @Expose
     private String body;
-    @SerializedName("ups")
-    @Expose
-    private int ups;
+
     @SerializedName("url")
     @Expose
     private String imageUrl;
-    @SerializedName("thumbnail")
-    @Expose
-    private String thumbnailUrl;
-    @SerializedName("num_comments")
-    @Expose
-    private int numComments;
 
     private String videoUrl;
-
     @SerializedName("is_video")
     private boolean isVideo = false;
+
+    @SerializedName("permalink")
+    private String postUrl;
 
     private Boolean expanded;
 
 //    ----------------------------------------Getter Setter----------------------------------------
 
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
+    public String getPostUrl() {
+        return postUrl;
     }
 
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
+    public void setPostUrl(String postUrl) {
+        this.postUrl = postUrl;
     }
 
     public Boolean getExpanded() {
@@ -66,22 +55,6 @@ public class Post {
 
     public void setExpanded(Boolean expanded) {
         this.expanded = expanded;
-    }
-
-    public Subreddit getSubredditObj() {
-        return subredditObj;
-    }
-
-    public void setSubredditObj(Subreddit subredditObj) {
-        this.subredditObj = subredditObj;
-    }
-
-    public int getNumComments() {
-        return numComments;
-    }
-
-    public void setNumComments(int numComments) {
-        this.numComments = numComments;
     }
 
     public String getId() {
@@ -108,14 +81,6 @@ public class Post {
         this.author = author;
     }
 
-    public long getDate() {
-        return date;
-    }
-
-    public void setDate(long date) {
-        this.date = date;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -132,13 +97,6 @@ public class Post {
         this.body = body;
     }
 
-    public int getUps() {
-        return ups;
-    }
-
-    public void setUps(int ups) {
-        this.ups = ups;
-    }
 
     public Media getMedia() {
         return media;
@@ -155,7 +113,6 @@ public class Post {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
 
     public String getVideoUrl() {
         if (videoUrl == null) {

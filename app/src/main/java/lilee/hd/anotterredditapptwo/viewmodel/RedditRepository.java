@@ -71,4 +71,25 @@ public class RedditRepository {
         return feedMutableLiveData;
     }
 
+
+
+    public MutableLiveData<Feed> getWidgetFeed() {
+        MutableLiveData<Feed> feedMutableLiveData = new MutableLiveData<>();
+        redditAPI.getWidgetPost().enqueue(new Callback<Feed>() {
+            @Override
+            public void onResponse(Call<Feed> call, Response<Feed> response) {
+                if (response.isSuccessful()) {
+                    feedMutableLiveData.postValue(response.body());
+                }
+
+            }
+            @Override
+            public void onFailure(Call<Feed> call, Throwable t) {
+                feedMutableLiveData.postValue(null);
+                t.printStackTrace();
+            }
+        });
+        return feedMutableLiveData;
+    }
+
 }

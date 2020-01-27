@@ -45,7 +45,6 @@ public class SubredditViewModel extends ViewModel {
         mNetworking = repository.getNetworking();
         mSubList = repository.getSubList();
         mImplode = repository.getNamesFromDb();
-        mutableLiveData = repository.getUserFeed(string);
     }
 
     //    ---------------------------Subreddit in database ---------------

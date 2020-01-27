@@ -1,26 +1,21 @@
 package lilee.hd.anotterredditapptwo.home;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,11 +24,10 @@ import lilee.hd.anotterredditapptwo.adapter.PostViewAdapter;
 import lilee.hd.anotterredditapptwo.model.Post;
 import lilee.hd.anotterredditapptwo.util.GlideApp;
 import lilee.hd.anotterredditapptwo.viewmodel.PostViewModel;
-import lilee.hd.anotterredditapptwo.viewmodel.SubredditRepository;
 import lilee.hd.anotterredditapptwo.viewmodel.SubredditViewModel;
-import lilee.hd.anotterredditapptwo.viewmodel.SubredditViewModelFactory;
 
 public class DetailFragment extends Fragment {
+    private static final String TAG = "DetailFragment";
     @BindView(R.id.post_subreddit_detail)
     TextView subNameView;
     @BindView(R.id.post_author_detail)
@@ -44,12 +38,16 @@ public class DetailFragment extends Fragment {
     TextView titleView;
     @BindView(R.id.post_text_detail)
     TextView postBodyView;
-
     private SubredditViewModel viewModel;
     private PostViewModel mPostViewModel;
     private PostViewAdapter adapter;
-    private Post post;
-    private static final String TAG = "DetailFragment";
+    private Post mPost;
+    private String subreddit;
+    private String author;
+    private String imgUrl;
+    private String title;
+    private String body;
+
     public DetailFragment() {
     }
 
@@ -63,49 +61,57 @@ public class DetailFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_post_detail, container, false);
         ButterKnife.bind(this, view);
+        bindViews();
         return view;
 
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (isAdded()){
-            mPostViewModel = ViewModelProviders.of(getActivity()).get(PostViewModel.class);
-            mPostViewModel.getCurrentPost().observe(getActivity(),
-                    post -> {
-                        bindViews();
-                        Log.d(TAG, "onCreateView: "+ post.getSubredditR());
-                    });
+    private Post getPrefs(Post post) {
+        mPost = post;
+        Context context = getActivity();
+        if (context != null) {
+            SharedPreferences prefs;
+            prefs = context.getSharedPreferences("PREF", Context.MODE_PRIVATE);
+            subreddit= prefs.getString("subreddit",mPost.getSubredditR());
+            author= prefs.getString("author", mPost.getAuthor());
+            imgUrl = prefs.getString("image", mPost.getImageUrl());
+            title = prefs.getString("title", mPost.getTitle());
+            body= prefs.getString("body", mPost.getBody());
         }
+        Log.d(TAG, "getPrefs: "+ subreddit);
+       return mPost;
     }
 
     private void bindViews() {
-        Post post = mPostViewModel.getCurrentPost().getValue();
-        if (post != null && isAdded()) {
-            subNameView.setText(post.getSubredditR());
-            authorView.setText(post.getAuthor());
-            titleView.setText(post.getTitle());
-            postBodyView.setText(post.getBody());
+        Post post = new Post();
+        mPost= getPrefs(post);
+        if (mPost != null && isAdded()) {
+            subNameView.setText(subreddit);
+            authorView.setText(author);
+            titleView.setText(title);
+            postBodyView.setText(body);
 
-//            if (post.getImageUrl() == null) {
-//                postImg.setVisibility(View.GONE);
-//            } else {
-//                RequestOptions defaultOptions = new RequestOptions()
-//                        .error(null);
-//                GlideApp.with(requireActivity())
-//                        .setDefaultRequestOptions(defaultOptions)
-//                        .asDrawable()
-//                        .load(post.getImageUrl())
-//                        .centerInside()
-//                        .into(postImg);
-//            }
-            if (post.getBody().isEmpty()) {
+            if (imgUrl.isEmpty()) {
+                postImg.setImageResource(R.drawable.theotter);
+            } else {
+                RequestOptions defaultOptions = new RequestOptions()
+                        .error(null);
+                try {
+                    GlideApp.with(requireActivity())
+                            .setDefaultRequestOptions(defaultOptions)
+                            .load(imgUrl)
+                            .into(postImg);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+            if (body==null) {
                 postBodyView.setVisibility(View.GONE);
             } else {
-                postBodyView.setText(post.getBody());
+                postBodyView.setText(body);
             }
-            Log.d(TAG, "bindViews: "+ post.getSubredditR());
+            Log.d(TAG, "bindViews: " + imgUrl);
         }
 
     }
